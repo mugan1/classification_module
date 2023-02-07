@@ -1,5 +1,4 @@
 import tensorflow as tf
-from 
 import matplotlib.pyplot as plt
 
 # 장치할당 로깅
@@ -55,7 +54,7 @@ model.compile(optimizer='adam',
             metrics=['accuracy'])
 
 
-    history = model.fit(x_train, y_train, epochs=10, validation_split=0.25)
+history = model.fit(x_train, y_train, epochs=10, validation_split=0.25)
 
 plt.figure(figsize=(10,4))
 plt.subplot(1,2,1)
