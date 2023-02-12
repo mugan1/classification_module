@@ -23,6 +23,6 @@ class CNN(tf.keras.Model):
 
 if __name__ == '__main__':
     model = CNN(num_classes=10)
-    model.build(input_shape=(None, 224, 224, 3))
-    print(model.summary())
+    # model.build(input_shape=(None, 224, 224, 3))
+    # print(model.summary())
 
