@@ -19,7 +19,7 @@ def random_transform(img):
                                 albumentations.VerticalFlip(p = 0.5),
                                 albumentations.GridDistortion(p = 0.2),
                                 albumentations.ElasticTransform(p = 0.2)])
-    return composition(image = img)['image']
+    return composition(image=img)['image']
 
 def augment_batch(img_batch) :
     
@@ -33,8 +33,6 @@ def augment_batch(img_batch) :
 def show_batch(dataloader) : 
     train_features, train_labels = next(iter(dataloader))
     print(type(train_features))
-    print(type(train_labels))
-    
     size = len(train_features)
     sub_size = int(size ** 0.5) +1
     plt.figure(figsize=(10, 10), dpi=80)
@@ -80,7 +78,7 @@ class DataGenerator(Sequence):
             img = img / 255.
             img = img[..., tf.newaxis]
             X[i] = img
-            
+
         if self.mode == 'fit' :
             
             y = self.y[indices]
@@ -106,12 +104,11 @@ if __name__ == '__main__' :
     mnist = tf.keras.datasets.mnist
     (x_train, y_train), (x_test, y_test) = mnist.load_data()
    
-    train_dataloader=DataGenerator(x_train, y_train, height, width, batch_size, True, augment=True)
+    train_dataloader=DataGenerator(x_train, y_train, height, width, batch_size, True, augment=True)    
     test_dataloader =DataGenerator(x_train, y_train, height, width, batch_size)
     
     show_batch(train_dataloader)
     
-
 
 
 
