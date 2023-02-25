@@ -61,11 +61,11 @@ def load_data(mnist):
     x_train, x_val, y_train, y_val = train_test_split(x_train, y_train, test_size=0.2, random_state=1)
 
     train_ds = tf.data.Dataset.from_tensor_slices((x_train,y_train)).map(lambda x, y: process_data(x, y, is_train=True))
-    val_ds = tf.data.Dataset.from_tensor_slices((x_train,y_train)).map(lambda x, y: process_data(x, y, is_train=False))
-    test_ds = tf.data.Dataset.from_tensor_slices((x_train,y_train)).map(lambda x, y: process_data(x, y, is_train=False))
+    val_ds = tf.data.Dataset.from_tensor_slices((x_val,y_val)).map(lambda x, y: process_data(x, y, is_train=False))
+    test_ds = tf.data.Dataset.from_tensor_slices((x_test,y_test)).map(lambda x, y: process_data(x, y, is_train=False))
     
     train_ds = prepare_for_training(train_ds, batch_size=32, is_train=True)
-    val_ds = prepare_for_training(test_ds, batch_size=32, is_train=False)
+    val_ds = prepare_for_training(val_ds, batch_size=32, is_train=False)
     test_ds = prepare_for_training(test_ds, batch_size=32, is_train=False)
     
     size_list = [len(x_train), len(x_val), len(x_test)]
@@ -73,9 +73,9 @@ def load_data(mnist):
 
 if __name__ == "__main__" :
     train_ds, test_ds, val_ds =load_data(mnist)
-    # show_batch(train_ds)
-    # show_batch(val_ds)
-    # show_batch(test_ds)
+    show_batch(train_ds)
+    show_batch(val_ds)
+    show_batch(test_ds)
     
     
     
