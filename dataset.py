@@ -1,16 +1,8 @@
 import tensorflow as tf
 from tensorflow.keras.utils import Sequence 
-from tensorflow.python.client import device_lib
 import matplotlib.pyplot as plt
-import os
 import numpy as np
 import albumentations 
-
-# device 확인
-# print(device_lib.list_local_devices())
-
-# cpu 설정
-os.environ["CUDA_VISIBLE_DEVICES"]="-1"
 
 # Augmentation
 

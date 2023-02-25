@@ -1,54 +1,44 @@
 import tensorflow as tf
 import matplotlib.pyplot as plt
-import numpy as np
 import albumentations as A
-from functools import partial
-
-# 방법1
-mnist = tf.keras.datasets.mnist
-(x_train, y_train), (x_test, y_test) = mnist.load_data()
+from sklearn.model_selection import train_test_split
 
 composition = A.Compose([A.HorizontalFlip(p = 0.5),
                         A.VerticalFlip(p = 0.5),
                         A.GridDistortion(p = 0.2),
                         A.ElasticTransform(p = 0.2)])
 
-def aug_fn(image):
+def aug_fn(image, is_train=True):
 
-    data = {"image":image}
-    aug_data = composition(**data)
-    aug_img = aug_data["image"]
-    aug_img = tf.cast(aug_img/255.0, tf.float32)
-    aug_img = tf.expand_dims(aug_img, -1) 
+    if is_train :
+        data = {"image":image}
+        aug_data = composition(**data)
+        image = aug_data["image"]
+    
+    image = tf.cast(image/255.0, tf.float32)
+    image = tf.expand_dims(image, -1) 
+  
+    return image
 
-    return aug_img
-
-def process_data(image, label):
+def process_data(image, label, is_train=False):
 
     # 파이썬 함수 func를 tensorflow 함수의 연산으로 래핑
-    aug_img = tf.numpy_function(func=aug_fn, inp=[image], Tout=tf.float32)
+    aug_img = tf.numpy_function(func=aug_fn, inp=[image, is_train], Tout=tf.float32)
     return aug_img, label
 
-train_ds = tf.data.Dataset.from_tensor_slices((x_train,y_train)).map(process_data)
-test_ds = tf.data.Dataset.from_tensor_slices((x_train,y_train))
-
-def prepare_for_training(ds, batch_size=32, cache=True, shuffle_buffer_size=1000):
+def prepare_for_training(ds, batch_size=32, cache=True, shuffle_buffer_size=1000, is_train=False):
     if cache:
         if isinstance(cache, str):
             ds = ds.cache(cache)
         else:
             ds = ds.cache()
-
-    ds = ds.shuffle(buffer_size=shuffle_buffer_size)
+    if is_train :
+        ds = ds.shuffle(buffer_size=shuffle_buffer_size)
     ds = ds.repeat()
     ds = ds.batch(batch_size)
     ds = ds.prefetch(buffer_size=tf.data.experimental.AUTOTUNE)
 
     return ds
-
-train_ds = prepare_for_training(train_ds, batch_size=32)
-test_ds = prepare_for_training(test_ds, batch_size=32)
-
 
 def show_batch(dataloader) : 
     for img, label in dataloader.take(1):
@@ -62,6 +52,31 @@ def show_batch(dataloader) :
             plt.imshow(img[n])
     plt.show()
     
-show_batch(train_ds)
 
+mnist = tf.keras.datasets.mnist
+
+def load_data(mnist):
+    
+    (x_train, y_train), (x_test, y_test) = mnist.load_data()
+    x_train, x_val, y_train, y_val = train_test_split(x_train, y_train, test_size=0.2, random_state=1)
+
+    train_ds = tf.data.Dataset.from_tensor_slices((x_train,y_train)).map(lambda x, y: process_data(x, y, is_train=True))
+    val_ds = tf.data.Dataset.from_tensor_slices((x_train,y_train)).map(lambda x, y: process_data(x, y, is_train=False))
+    test_ds = tf.data.Dataset.from_tensor_slices((x_train,y_train)).map(lambda x, y: process_data(x, y, is_train=False))
+    
+    train_ds = prepare_for_training(train_ds, batch_size=32, is_train=True)
+    val_ds = prepare_for_training(test_ds, batch_size=32, is_train=False)
+    test_ds = prepare_for_training(test_ds, batch_size=32, is_train=False)
+    
+    size_list = [len(x_train), len(x_val), len(x_test)]
+    return train_ds, val_ds, test_ds, size_list
+
+if __name__ == "__main__" :
+    train_ds, test_ds, val_ds =load_data(mnist)
+    # show_batch(train_ds)
+    # show_batch(val_ds)
+    # show_batch(test_ds)
+    
+    
+    
 
